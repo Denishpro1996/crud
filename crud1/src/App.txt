@@ -1,0 +1,120 @@
+import React, { useState, useEffect } from 'react'
+
+
+
+const getData = () => {
+    const getList = localStorage.getItem('list')
+    if (getList) {
+        return JSON.parse(localStorage.getItem('list'))
+    } else {
+        return [];
+    }
+}
+const App = () => {
+    const [inputData, setInputData] = useState({
+        list: "",
+    })
+    const [items, setItems] = useState(getData())
+    const [isToggle, setIsToggle] = useState(true)
+    const [isEdit, setIsEdit] = useState(null)
+    const changehandler = (e) => {
+        const { name, value } = e.target
+        setInputData((oldValue) => {
+            return {
+                ...oldValue,
+                [name]: value
+            }
+        })
+    }
+    const submitHandler = (e) => {
+        e.preventDefault()
+        setInputData({
+            list: "",
+        })
+    }
+    const addItem = () => {
+        if (!inputData) {
+            alert("Epmty Data")
+            
+         }
+        //   else if(inputData && !isToggle){
+        //     setItems(
+        //         items.map((elem)=>{
+        //             if(elem.id === isEdit){
+        //                 return {...elem,name:inputData}
+        //             }
+        //             return elem
+        //         })
+        //     )
+        // }
+        else if(inputData && !isToggle){
+            setItems(
+                items.map((elem)=>{
+                    if(elem.id = isEdit){
+                        return{...elem,name:inputData}
+                    }
+                    return elem;
+                })
+            )
+            setIsToggle(true)
+            setInputData({
+                list:""
+            });
+            setIsEdit(null);
+        }
+         else {
+            const addAllInput = { id: new Date().getTime().toString(), name: inputData }
+            setItems([...items, addAllInput])
+        }
+    }
+    const delItem = (id) => {
+        const deleteData = items.filter((elem) => {
+            return elem.id !== id;
+        })
+        setItems(deleteData)
+    }
+    const editItem = (id) => {
+        const updateItem = items.find((elem) => {
+            return elem.id === id;
+        })
+        setInputData(updateItem.name)
+        setIsToggle(false)
+        setIsEdit(id)
+
+    }
+    useEffect(() => {
+        localStorage.setItem('list', JSON.stringify(items))
+    })
+    return (
+        <div>
+            <h1>Crud Operation</h1>
+            <form action="" onSubmit={submitHandler}>
+                <input
+                    type="text"
+                    placeholder='list...'
+                    onChange={changehandler}
+                    value={inputData.list}
+                    name="list"
+                />
+                {
+                    isToggle ? <button onClick={addItem}>+</button> : <button onClick={addItem}>Edt</button>
+                }
+
+            </form>
+            {
+                items.map((currValue) => {
+                    return (
+                        <div key={currValue.id}>
+                            {currValue.name.list}
+                            <button onClick={() => delItem(currValue.id)}>del</button>
+                            <button onClick={() => editItem(currValue.id)}>Edt</button>
+                        </div>
+                    )
+                })
+            }
+
+        </div>
+    )
+}
+
+export default App
